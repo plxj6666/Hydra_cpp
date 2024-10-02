@@ -157,6 +157,7 @@ public:
         return -1;
     }
 
+// 
     ZZ_p field_element_from_shake(SHAKE128 &shake) {
         size_t bitlen = mpz_sizeinbase(p.get_mpz_t(), 2);
         size_t byte = (bitlen + 7) / 8;
