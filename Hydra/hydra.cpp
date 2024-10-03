@@ -83,12 +83,13 @@ public:
 
         SHAKE128 shakeMatrices;
         initShake(p, "Matrices", shakeMatrices);
-        outputShake(shakeMatrices, 32); // shake正确！继续查看
+        // outputShake(shakeMatrices, 32); // shake正确！继续查看
         Mi = gen_mi(shakeMatrices);
         Mh = gen_mh(shakeMatrices);
         // cout << "Mi:" << Mi << endl;
         // cout << "Mh:" << Mh << endl;
-        outputShake(shakeMatrices, 32);
+
+        // outputShake(shakeMatrices, 32);
         // Initialize round constants
         SHAKE128 shakeConstants;
         initShake(p, "Constants", shakeConstants);
@@ -162,16 +163,21 @@ public:
         size_t bitlen = mpz_sizeinbase(p.get_mpz_t(), 2);
         size_t byte = (bitlen + 7) / 8;
         size_t word = (byte + 7) / 8;
-        // cout << "bitlen:" << bitlen << endl;
-        // cout << "byte" << byte << endl;
-        // cout << "word" << word << endl;
+        cout << "bitlen:" << bitlen << endl;
+        cout << "byte" << byte << endl;
+        cout << "word" << word << endl;
         // 以上没问题
         int i = 0;
         while (true) {
             vector<uint64_t> word_buf(word, 0);
-            outputShake(shake, 32);
+            printf("before buf:\n");
+            outputShake(shake, 32); // 第一次的shake正确，但第二次就出问题
             SecByteBlock buf(byte);
             shake.TruncatedFinal(buf, buf.size());
+            printf("after buf:\n");
+            outputShake(shake, 32);
+            outputShake(shake, 32);
+
             for (size_t i = 0; i < word; i++) {
                 uint64_t value = 0;
                 for (size_t j = i * 8; j < min((i + 1) * 8, byte); j++) {
@@ -180,13 +186,17 @@ public:
                 word_buf[i] = value;
             }
             // 第一次是对的,后面就错了
-            // cout << word_buf[0] << "->" << i << endl;
+            for (int i = 0; i < word_buf.size(); i++) {
+                cout << word_buf[i] << endl;
+            }
             mpz_class res = 0;
             for (auto it = word_buf.rbegin(); it != word_buf.rend(); ++it) {
                 res = (res << 64) + *it;
             }
             // 第一次是对的，后面出问题
-            // cout << "res:" << res << "->" << i << endl;
+            cout << "res:" << res << "->" << i << endl;
+            break;
+            // res >= p            
             if (res < p) {
                 return conv<ZZ_p>(mpz_class_to_ZZ(res));
             }
@@ -654,12 +664,13 @@ private:
 
     static void outputShake(SHAKE128 &shake, size_t length) {
         SecByteBlock buffer(length);
-        shake.TruncatedFinal(buffer, buffer.size());
-
+        shake.TruncatedFinal(buffer, buffer.size()); 
+        
         string encoded;
         HexEncoder encoder(new StringSink(encoded));
         encoder.Put(buffer, buffer.size());
         encoder.MessageEnd();
+        
         cout << "SHAKE128 output: " << encoded << endl;
     }
 
