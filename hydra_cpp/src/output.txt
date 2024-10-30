@@ -1,0 +1,14 @@
+Initialization Start
+begin rc_b
+end rc_b
+39
+Initialization End
+[0 1 2 3 4]
+[0 0 0 0]
+[1 1 1]
+[2]
+0x4f5ee5a97dfebaececd4551ec5809707
+0xb47fa8c72efaa44b78d9e5d9e6b4542
+0x55f372d824090700108896da7f29eeb7
+0x194f5f01f529d9bdd34e4dd25ae34d82
+0x27edff148a4ba744bc3d4d69947a86de
